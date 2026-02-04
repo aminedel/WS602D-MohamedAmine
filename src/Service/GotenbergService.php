@@ -61,16 +61,22 @@ class GotenbergService
     public function generatePdfFromHtml(string $htmlContent): string
     {
         try {
-            // Create a temporary HTML file
-            $tempFile = tempnam(sys_get_temp_dir(), 'html_');
+            // Wrap HTML in complete document if needed
+            if (stripos($htmlContent, '<html') === false) {
+                $htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>PDF Document</title></head><body>' . $htmlContent . '</body></html>';
+            }
+
+            // Create a temporary HTML file named index.html (required by Gotenberg)
+            $tempDir = sys_get_temp_dir() . '/gotenberg_' . uniqid();
+            mkdir($tempDir);
+            $tempFile = $tempDir . '/index.html';
             file_put_contents($tempFile, $htmlContent);
 
             $response = $this->httpClient->request('POST', $this->gotenbergUrl . '/forms/chromium/convert/html', [
-                'headers' => [
-                    'Content-Type' => 'multipart/form-data',
-                ],
                 'body' => [
-                    'files' => fopen($tempFile, 'r'),
+                    'files' => [
+                        fopen($tempFile, 'r')
+                    ],
                     'marginTop' => '0.5',
                     'marginBottom' => '0.5',
                     'marginLeft' => '0.5',
@@ -78,14 +84,20 @@ class GotenbergService
                 ],
             ]);
 
-            // Clean up temp file
-            unlink($tempFile);
-
             if ($response->getStatusCode() !== 200) {
+                // Clean up before throwing exception
+                @unlink($tempFile);
+                @rmdir($tempDir);
                 throw new \Exception('Gotenberg service returned status: ' . $response->getStatusCode());
             }
 
-            return $response->getContent();
+            $content = $response->getContent();
+
+            // Clean up temp files
+            @unlink($tempFile);
+            @rmdir($tempDir);
+
+            return $content;
         } catch (\Exception $e) {
             throw new \Exception('Error generating PDF from HTML: ' . $e->getMessage());
         }
@@ -101,14 +113,25 @@ class GotenbergService
     public function generatePdfFromFile(UploadedFile $file): string
     {
         try {
+            // Get file content and original filename
+            $fileContent = file_get_contents($file->getPathname());
+            $filename = $file->getClientOriginalName();
+
+            // Create a temporary file with the original name
+            $tempDir = sys_get_temp_dir() . '/gotenberg_file_' . uniqid();
+            mkdir($tempDir);
+            $tempFile = $tempDir . '/' . $filename;
+            file_put_contents($tempFile, $fileContent);
+
             $response = $this->httpClient->request('POST', $this->gotenbergUrl . '/forms/libreoffice/convert', [
-                'headers' => [
-                    'Content-Type' => 'multipart/form-data',
-                ],
                 'body' => [
-                    'files' => fopen($file->getPathname(), 'r'),
+                    'files' => fopen($tempFile, 'r'),
                 ],
             ]);
+
+            // Clean up
+            @unlink($tempFile);
+            @rmdir($tempDir);
 
             if ($response->getStatusCode() !== 200) {
                 throw new \Exception('Gotenberg service returned status: ' . $response->getStatusCode());
