@@ -1,0 +1,20 @@
+{
+    "name": "wr602d-pdf-generator",
+    "version": "1.0.0",
+    "description": "PDF Generation Microservice with Symfony and Gotenberg",
+    "scripts": {
+        "cypress:open": "cypress open",
+        "cypress:run": "cypress run"
+    },
+    "keywords": [
+        "symfony",
+        "pdf",
+        "gotenberg",
+        "microservice"
+    ],
+    "author": "Mohamed Amine",
+    "license": "MIT",
+    "devDependencies": {
+        "cypress": "^13.6.0"
+    }
+}

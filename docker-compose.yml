@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Symfony Application
+  symfony:
+    image: mmi3docker/symfony-2024
+    container_name: wr602d_symfony
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - DATABASE_URL=mysql://root:root@db:3306/wr602d_pdf?serverVersion=8.0
+      - GOTENBERG_URL=http://gotenberg:3000
+    depends_on:
+      - db
+      - gotenberg
+    networks:
+      - wr602d_network
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: wr602d_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wr602d_pdf
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - wr602d_network
+
+  # Gotenberg PDF Service
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    container_name: wr602d_gotenberg
+    ports:
+      - "3000:3000"
+    networks:
+      - wr602d_network
+
+  # PhpMyAdmin (optional, for database management)
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: wr602d_phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - wr602d_network
+
+volumes:
+  db_data:
+
+networks:
+  wr602d_network:
+    driver: bridge

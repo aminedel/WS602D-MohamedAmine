@@ -1,0 +1,197 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique - PDF Generator{% endblock %}
+
+{% block body %}
+<style>
+    .history-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .history-header h1 {
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 0.5rem;
+    }
+
+    .history-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--gray);
+        font-weight: 600;
+    }
+
+    .history-table {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table thead {
+        background: var(--primary);
+        color: white;
+    }
+
+    .table th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table tbody tr:hover {
+        background: var(--light);
+    }
+
+    .type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .type-url {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .type-file {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .type-wysiwyg {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .btn-download {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--gray);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="history-header">
+    <h1>📚 Historique des Générations</h1>
+</div>
+
+<div class="history-stats">
+    <div class="stat-card">
+        <div class="stat-value">{{ generations|length }}</div>
+        <div class="stat-label">Total de PDFs</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">
+            {{ generations|filter(g => g.createdAt|date('Y-m-d') == 'now'|date('Y-m-d'))|length }}
+        </div>
+        <div class="stat-label">Aujourd'hui</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">
+            {{ generations|filter(g => g.createdAt > date('-7 days'))|length }}
+        </div>
+        <div class="stat-label">Cette semaine</div>
+    </div>
+</div>
+
+{% if generations|length > 0 %}
+    <div class="history-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>📅 Date</th>
+                    <th>🏷️ Type</th>
+                    <th>📄 Fichier</th>
+                    <th>🔗 Source</th>
+                    <th>⚡ Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for generation in generations %}
+                    <tr>
+                        <td>{{ generation.createdAt|date('d/m/Y H:i') }}</td>
+                        <td>
+                            <span class="type-badge type-{{ generation.type }}">
+                                {% if generation.type == 'url' %}🌐 URL
+                                {% elseif generation.type == 'file' %}📁 Fichier
+                                {% else %}✏️ HTML{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <code style="font-size: 0.875rem;">{{ generation.file }}</code>
+                        </td>
+                        <td>
+                            {% if generation.sourceUrl %}
+                                <a href="{{ generation.sourceUrl }}" target="_blank" style="color: var(--primary); text-decoration: none;">
+                                    {{ generation.sourceUrl|slice(0, 40) }}...
+                                </a>
+                            {% else %}
+                                <span style="color: var(--gray);">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ path('app_pdf_download', {id: generation.id}) }}" 
+                               class="btn btn-primary btn-download"
+                               target="_blank">
+                                📥 Télécharger
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card">
+        <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <h2 style="color: var(--dark); margin-bottom: 1rem;">Aucune génération pour le moment</h2>
+            <p style="margin-bottom: 2rem;">Commencez à générer des PDFs pour les voir apparaître ici !</p>
+            <a href="{{ path('app_pdf_generate') }}" class="btn btn-primary">
+                🚀 Générer mon premier PDF
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

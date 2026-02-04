@@ -1,0 +1,234 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - PDF Generator{% endblock %}
+
+{% block body %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 16px;
+        margin-bottom: 3rem;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        font-weight: 800;
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        color: var(--gray);
+        margin-bottom: 2rem;
+    }
+
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        text-align: center;
+        transition: transform 0.3s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .plans-section {
+        margin-top: 3rem;
+    }
+
+    .plans-section h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+
+    .plan-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        text-align: center;
+        position: relative;
+        transition: transform 0.3s;
+    }
+
+    .plan-card:hover {
+        transform: scale(1.05);
+    }
+
+    .plan-card.featured {
+        border: 3px solid var(--primary);
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+    }
+
+    .plan-badge {
+        position: absolute;
+        top: -12px;
+        right: 20px;
+        background: var(--primary);
+        color: white;
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .plan-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .plan-price {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-price span {
+        font-size: 1rem;
+        color: var(--gray);
+    }
+
+    .plan-description {
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+        min-height: 60px;
+    }
+
+    .plan-features {
+        list-style: none;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    .plan-features li {
+        padding: 0.5rem 0;
+        color: var(--dark);
+    }
+
+    .plan-features li::before {
+        content: "✓ ";
+        color: var(--success);
+        font-weight: bold;
+        margin-right: 0.5rem;
+    }
+</style>
+
+<div class="hero">
+    <h1>🚀 Générateur de PDF Professionnel</h1>
+    <p>Convertissez vos documents en PDF en quelques clics. Simple, rapide et efficace.</p>
+    {% if not app.user %}
+        <a href="{{ path('app_register') }}" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 2rem;">
+            Commencer gratuitement
+        </a>
+    {% else %}
+        <a href="{{ path('app_pdf_generate') }}" class="btn btn-primary" style="font-size: 1.25rem; padding: 1rem 2rem;">
+            Générer un PDF
+        </a>
+    {% endif %}
+</div>
+
+<div class="features">
+    <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>URL vers PDF</h3>
+        <p>Convertissez n'importe quelle page web en PDF de haute qualité</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <h3>Fichier vers PDF</h3>
+        <p>Transformez vos documents Office en PDF instantanément</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">✏️</div>
+        <h3>Éditeur HTML</h3>
+        <p>Créez des PDFs personnalisés avec notre éditeur WYSIWYG</p>
+    </div>
+</div>
+
+<div class="plans-section">
+    <h2>💎 Nos Abonnements</h2>
+    <div class="plans-grid">
+        {% for plan in plans %}
+            <div class="plan-card {% if plan.name == 'BASIC' %}featured{% endif %}">
+                {% if plan.name == 'BASIC' %}
+                    <div class="plan-badge">POPULAIRE</div>
+                {% endif %}
+                
+                <div class="plan-name">{{ plan.name }}</div>
+                
+                <div class="plan-price">
+                    {% if plan.currentPrice == '0.00' %}
+                        Gratuit
+                    {% else %}
+                        {{ plan.currentPrice }}€
+                        <span>/mois</span>
+                    {% endif %}
+                </div>
+                
+                <div class="plan-description">
+                    {{ plan.description|slice(0, 100) }}...
+                </div>
+                
+                <ul class="plan-features">
+                    <li>
+                        {% if plan.limitGeneration is null %}
+                            Génération illimitée
+                        {% else %}
+                            {{ plan.limitGeneration }} PDFs par jour
+                        {% endif %}
+                    </li>
+                    <li>Tous les types de conversion</li>
+                    <li>Historique complet</li>
+                    {% if plan.name == 'PREMIUM' %}
+                        <li>Support prioritaire</li>
+                        <li>API Access</li>
+                    {% endif %}
+                </ul>
+                
+                {% if app.user %}
+                    {% if app.user.plan and app.user.plan.id == plan.id %}
+                        <button class="btn btn-secondary" disabled>Abonnement actuel</button>
+                    {% else %}
+                        <a href="{{ path('app_subscription') }}" class="btn btn-primary">Choisir ce plan</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ path('app_register') }}" class="btn btn-primary">Commencer</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

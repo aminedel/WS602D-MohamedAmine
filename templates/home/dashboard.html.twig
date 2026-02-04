@@ -1,0 +1,154 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - PDF Generator{% endblock %}
+
+{% block body %}
+<style>
+    .dashboard-header {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .dashboard-header h1 {
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .welcome-text {
+        color: var(--gray);
+        font-size: 1.125rem;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .action-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        text-align: center;
+        transition: transform 0.3s;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .action-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .action-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .action-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .action-description {
+        color: var(--gray);
+    }
+
+    .user-info-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--gray);
+    }
+
+    .info-value {
+        color: var(--dark);
+        font-weight: 600;
+    }
+</style>
+
+<div class="dashboard-header">
+    <h1>👋 Bienvenue, {{ user.firstname }} !</h1>
+    <p class="welcome-text">Gérez vos PDFs et votre abonnement depuis votre tableau de bord</p>
+</div>
+
+<div class="quick-actions">
+    <a href="{{ path('app_pdf_generate') }}" class="action-card">
+        <div class="action-icon">🚀</div>
+        <div class="action-title">Générer un PDF</div>
+        <div class="action-description">Créez un nouveau PDF en quelques clics</div>
+    </a>
+
+    <a href="{{ path('app_history') }}" class="action-card">
+        <div class="action-icon">📚</div>
+        <div class="action-title">Historique</div>
+        <div class="action-description">Consultez vos PDFs générés</div>
+    </a>
+
+    <a href="{{ path('app_subscription') }}" class="action-card">
+        <div class="action-icon">💎</div>
+        <div class="action-title">Abonnement</div>
+        <div class="action-description">Gérez votre plan d'abonnement</div>
+    </a>
+</div>
+
+<div class="user-info-card">
+    <h2 style="color: var(--primary); margin-bottom: 1.5rem;">📋 Informations du compte</h2>
+    
+    <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value">{{ user.email }}</span>
+    </div>
+
+    <div class="info-row">
+        <span class="info-label">Nom complet</span>
+        <span class="info-value">{{ user.firstname }} {{ user.lastname }}</span>
+    </div>
+
+    {% if user.phone %}
+    <div class="info-row">
+        <span class="info-label">Téléphone</span>
+        <span class="info-value">{{ user.phone }}</span>
+    </div>
+    {% endif %}
+
+    <div class="info-row">
+        <span class="info-label">Plan actuel</span>
+        <span class="info-value" style="color: var(--primary);">
+            {% if user.plan %}
+                {{ user.plan.name }}
+            {% else %}
+                Aucun abonnement
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="info-row">
+        <span class="info-label">Membre depuis</span>
+        <span class="info-value">{{ user.createdAt|date('d/m/Y') }}</span>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Générer un PDF - PDF Generator{% endblock %}
+
+{% block body %}
+<style>
+    .pdf-generator {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .stats-card {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .stats-card h2 {
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-card .plan-name {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+
+    .stats-card .remaining {
+        font-size: 1.25rem;
+        opacity: 0.9;
+    }
+
+    .form-type-selector {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .type-option {
+        position: relative;
+    }
+
+    .type-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .type-option label {
+        display: block;
+        padding: 2rem 1rem;
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .type-option input[type="radio"]:checked + label {
+        border-color: var(--primary);
+        background: #f0f4ff;
+    }
+
+    .type-option label:hover {
+        border-color: var(--primary);
+    }
+
+    .type-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .conditional-field {
+        display: none;
+    }
+
+    .conditional-field.active {
+        display: block;
+    }
+
+    textarea.form-control {
+        min-height: 200px;
+        font-family: 'Courier New', monospace;
+    }
+</style>
+
+<div class="pdf-generator">
+    <div class="stats-card">
+        <h2>📊 Votre Abonnement</h2>
+        <div class="plan-name">{{ plan.name }}</div>
+        <div class="remaining">
+            {% if remainingGenerations is null %}
+                ✨ Génération illimitée
+            {% else %}
+                {{ remainingGenerations }} PDF(s) restant(s) aujourd'hui
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h1 style="margin-bottom: 2rem; color: var(--primary);">🎨 Générer un PDF</h1>
+
+        {{ form_start(form, {'attr': {'data-turbo': 'false', 'id': 'pdfForm'}}) }}
+            
+            <div class="form-type-selector">
+                {% for choice in form.type %}
+                    <div class="type-option">
+                        {{ form_widget(choice) }}
+                        <label for="{{ choice.vars.id }}">
+                            <div class="type-icon">
+                                {% if choice.vars.value == 'url' %}🌐
+                                {% elseif choice.vars.value == 'file' %}📁
+                                {% else %}✏️{% endif %}
+                            </div>
+                            <div>{{ choice.vars.label }}</div>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div id="url-field" class="conditional-field form-group">
+                {{ form_label(form.url, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.url) }}
+                {{ form_errors(form.url) }}
+                <small style="color: var(--gray);">Exemple : https://symfony.com</small>
+            </div>
+
+            <div id="file-field" class="conditional-field form-group">
+                {{ form_label(form.file, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.file) }}
+                {{ form_errors(form.file) }}
+                <small style="color: var(--gray);">Formats acceptés : PDF, Word, Excel, PowerPoint, TXT (max 10MB)</small>
+            </div>
+
+            <div id="wysiwyg-field" class="conditional-field form-group">
+                {{ form_label(form.html_content, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.html_content) }}
+                {{ form_errors(form.html_content) }}
+                <small style="color: var(--gray);">Entrez votre contenu HTML personnalisé</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.125rem;">
+                🚀 Générer le PDF
+            </button>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeRadios = document.querySelectorAll('input[name="pdf_generation[type]"]');
+        const urlField = document.getElementById('url-field');
+        const fileField = document.getElementById('file-field');
+        const wysiwygField = document.getElementById('wysiwyg-field');
+
+        function updateFields() {
+            const selectedType = document.querySelector('input[name="pdf_generation[type]"]:checked')?.value;
+            
+            urlField.classList.remove('active');
+            fileField.classList.remove('active');
+            wysiwygField.classList.remove('active');
+
+            if (selectedType === 'url') {
+                urlField.classList.add('active');
+            } else if (selectedType === 'file') {
+                fileField.classList.add('active');
+            } else if (selectedType === 'wysiwyg') {
+                wysiwygField.classList.add('active');
+            }
+        }
+
+        typeRadios.forEach(radio => {
+            radio.addEventListener('change', updateFields);
+        });
+
+        updateFields();
+    });
+</script>
+{% endblock %}
