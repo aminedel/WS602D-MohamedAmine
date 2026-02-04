@@ -1,98 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Générer un PDF - PDF Generator{% endblock %}
+{% block title %}Générer un PDF - Amine PDF{% endblock %}
 
 {% block body %}
-<style>
-    .pdf-generator {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .stats-card {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
-        padding: 2rem;
-        border-radius: 16px;
-        margin-bottom: 2rem;
-        text-align: center;
-    }
-
-    .stats-card h2 {
-        margin-bottom: 0.5rem;
-    }
-
-    .stats-card .plan-name {
-        font-size: 2rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-    }
-
-    .stats-card .remaining {
-        font-size: 1.25rem;
-        opacity: 0.9;
-    }
-
-    .form-type-selector {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .type-option {
-        position: relative;
-    }
-
-    .type-option input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-    }
-
-    .type-option label {
-        display: block;
-        padding: 2rem 1rem;
-        background: white;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .type-option input[type="radio"]:checked + label {
-        border-color: var(--primary);
-        background: #f0f4ff;
-    }
-
-    .type-option label:hover {
-        border-color: var(--primary);
-    }
-
-    .type-icon {
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .conditional-field {
-        display: none;
-    }
-
-    .conditional-field.active {
-        display: block;
-    }
-
-    textarea.form-control {
-        min-height: 200px;
-        font-family: 'Courier New', monospace;
-    }
-</style>
-
 <div class="pdf-generator">
-    <div class="stats-card">
-        <h2>📊 Votre Abonnement</h2>
-        <div class="plan-name">{{ plan.name }}</div>
-        <div class="remaining">
+    <div class="card" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; text-align: center; border: none;">
+        <h2 style="color: white; margin-bottom: 0.5rem; font-size: 1.25rem;">📊 Votre Abonnement</h2>
+        <div class="plan-name" style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">{{ plan.name }}</div>
+        <div class="remaining" style="font-size: 1.1rem; opacity: 0.9;">
             {% if remainingGenerations is null %}
                 ✨ Génération illimitée
             {% else %}
