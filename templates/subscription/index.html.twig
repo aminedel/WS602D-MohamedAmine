@@ -1,226 +1,190 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Abonnement - PDF Generator{% endblock %}
+{% block title %}Abonnement - Amine PDF{% endblock %}
+{% block page_title %}Abonnement{% endblock %}
 
 {% block body %}
 <style>
-    .subscription-header {
+    .sub-header {
         text-align: center;
-        margin-bottom: 3rem;
+        margin-bottom: 2.5rem;
     }
-
-    .subscription-header h1 {
-        font-size: 2.5rem;
-        color: white;
-        margin-bottom: 1rem;
+    .sub-header h1 {
+        font-size: 1.75rem;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+        font-weight: 800;
     }
-
-    .current-plan-badge {
-        display: inline-block;
-        background: var(--success);
-        color: white;
-        padding: 0.5rem 1.5rem;
+    .current-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--success-light);
+        color: #065f46;
+        padding: 0.5rem 1.25rem;
         border-radius: 20px;
-        font-weight: 600;
-        margin-bottom: 2rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        border: 1px solid #a7f3d0;
     }
-
     .plans-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        gap: 1.5rem;
     }
-
     .plan-card {
-        background: white;
-        padding: 2.5rem;
+        background: #fff;
+        padding: 2rem;
         border-radius: 16px;
         position: relative;
-        transition: transform 0.3s;
+        transition: all 0.2s;
+        border: 2px solid var(--border);
     }
-
     .plan-card:hover {
-        transform: translateY(-8px);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
     }
-
-    .plan-card.current {
-        border: 3px solid var(--success);
-        box-shadow: 0 8px 32px rgba(16, 185, 129, 0.3);
+    .plan-card.is-current {
+        border-color: var(--success);
+        box-shadow: 0 4px 20px rgba(5,150,105,0.12);
     }
-
-    .plan-card.featured {
-        border: 3px solid var(--primary);
-        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+    .plan-card.is-popular {
+        border-color: var(--primary);
+        box-shadow: 0 4px 20px rgba(37,99,235,0.12);
     }
-
-    .current-badge {
+    .badge-top {
         position: absolute;
         top: -12px;
-        right: 20px;
-        background: var(--success);
-        color: white;
-        padding: 0.25rem 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.3rem 1rem;
         border-radius: 20px;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .popular-badge {
-        position: absolute;
-        top: -12px;
-        right: 20px;
-        background: var(--primary);
-        color: white;
-        padding: 0.25rem 1rem;
-        border-radius: 20px;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .plan-name {
-        font-size: 1.75rem;
+        font-size: 0.72rem;
         font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 1rem;
-        text-align: center;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        white-space: nowrap;
     }
-
-    .plan-price {
-        font-size: 3rem;
-        font-weight: 800;
-        color: var(--dark);
-        text-align: center;
+    .badge-current {
+        background: var(--success);
+        color: #fff;
+    }
+    .badge-popular {
+        background: var(--primary);
+        color: #fff;
+    }
+    .plan-name {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--text-primary);
         margin-bottom: 0.5rem;
-    }
-
-    .plan-price span {
-        font-size: 1.25rem;
-        color: var(--gray);
-    }
-
-    .plan-description {
-        color: var(--gray);
-        margin-bottom: 2rem;
         text-align: center;
-        min-height: 80px;
     }
-
-    .plan-features {
+    .plan-price {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        text-align: center;
+        margin-bottom: 0.25rem;
+        letter-spacing: -0.03em;
+    }
+    .plan-price span {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    .plan-desc {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+    .plan-list {
         list-style: none;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
-
-    .plan-features li {
-        padding: 0.75rem 0;
-        color: var(--dark);
-        border-bottom: 1px solid var(--border);
+    .plan-list li {
+        padding: 0.5rem 0;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f1f5f9;
     }
-
-    .plan-features li:last-child {
-        border-bottom: none;
-    }
-
-    .plan-features li::before {
-        content: "✓ ";
+    .plan-list li:last-child { border-bottom: none; }
+    .plan-list li::before {
+        content: "\f00c";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
         color: var(--success);
-        font-weight: bold;
-        margin-right: 0.5rem;
-        font-size: 1.25rem;
+        margin-right: 0.6rem;
+        font-size: 0.8rem;
     }
-
     .plan-action {
         width: 100%;
-        padding: 1rem;
-        font-size: 1.125rem;
+        padding: 0.85rem;
+        font-size: 0.95rem;
     }
 </style>
 
-<div class="subscription-header">
-    <h1>💎 Gérer votre Abonnement</h1>
+<div class="sub-header">
+    <h1><i class="fa-solid fa-crown"></i> Gerer votre Abonnement</h1>
     {% if currentPlan %}
-        <div class="current-plan-badge">
-            Abonnement actuel : {{ currentPlan.name }}
+        <div class="current-badge">
+            <i class="fa-solid fa-check-circle"></i>
+            Plan actuel : {{ currentPlan.name }}
         </div>
     {% endif %}
 </div>
 
 <div class="plans-grid">
     {% for plan in plans %}
-        <div class="plan-card {% if currentPlan and currentPlan.id == plan.id %}current{% elseif plan.name == 'BASIC' %}featured{% endif %}">
+        <div class="plan-card {% if currentPlan and currentPlan.id == plan.id %}is-current{% elseif plan.name == 'BASIC' %}is-popular{% endif %}">
             {% if currentPlan and currentPlan.id == plan.id %}
-                <div class="current-badge">✓ ACTUEL</div>
+                <div class="badge-top badge-current"><i class="fa-solid fa-check"></i> Actuel</div>
             {% elseif plan.name == 'BASIC' %}
-                <div class="popular-badge">⭐ POPULAIRE</div>
+                <div class="badge-top badge-popular"><i class="fa-solid fa-star"></i> Populaire</div>
             {% endif %}
-            
+
             <div class="plan-name">{{ plan.name }}</div>
-            
+
             <div class="plan-price">
-                {% if plan.currentPrice == '0.00' %}
-                    Gratuit
+                {% if plan.currentPrice == '0.00' or plan.currentPrice == '0' %}
+                    0<span>&euro;</span>
                 {% else %}
-                    {{ plan.currentPrice }}€
-                    <span>/mois</span>
+                    {{ plan.currentPrice }}<span>&euro;/mois</span>
                 {% endif %}
             </div>
 
-            {% if plan.specialPrice and plan.currentPrice == plan.specialPrice %}
-                <div style="text-align: center; color: var(--danger); font-weight: 600; margin-bottom: 1rem;">
-                    <s>{{ plan.price }}€</s> Prix spécial !
-                </div>
-            {% endif %}
-            
-            <div class="plan-description">
-                {{ plan.description }}
-            </div>
-            
-            <ul class="plan-features">
+            <div class="plan-desc">{{ plan.description }}</div>
+
+            <ul class="plan-list">
                 <li>
                     {% if plan.limitGeneration is null %}
-                        <strong>Génération illimitée</strong>
+                        <strong>Generation illimitee</strong>
                     {% else %}
-                        <strong>{{ plan.limitGeneration }} PDFs par jour</strong>
+                        <strong>{{ plan.limitGeneration }} PDFs / jour</strong>
                     {% endif %}
                 </li>
-                <li>Conversion URL vers PDF</li>
-                <li>Conversion Fichier vers PDF</li>
-                <li>Éditeur HTML (WYSIWYG)</li>
-                <li>Historique complet</li>
-                <li>Téléchargement illimité</li>
+                {% for tool in plan.tools %}
+                    <li>{{ tool.name }}</li>
+                {% endfor %}
                 {% if plan.name == 'PREMIUM' %}
                     <li><strong>Support prioritaire</strong></li>
-                    <li><strong>API Access</strong></li>
-                    <li><strong>Pas de publicité</strong></li>
                 {% endif %}
             </ul>
-            
+
             {% if currentPlan and currentPlan.id == plan.id %}
                 <button class="btn btn-secondary plan-action" disabled>
-                    ✓ Abonnement actuel
+                    <i class="fa-solid fa-check"></i> Plan actuel
                 </button>
             {% else %}
-                <form method="post" action="{{ path('app_subscription_change', {planId: plan.id}) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('subscription_change') }}">
-                    <button type="submit" class="btn btn-primary plan-action">
-                        {% if currentPlan %}
-                            Changer pour {{ plan.name }}
-                        {% else %}
-                            Choisir {{ plan.name }}
-                        {% endif %}
+                <form method="post" action="{{ path('app_subscription_change', {planId: plan.id}) }}" style="margin:0;">
+                    <button type="submit" class="btn btn-primary plan-action" data-cy="subscribe-{{ plan.name|lower }}">
+                        <i class="fa-solid fa-arrow-right"></i> Choisir {{ plan.name }}
                     </button>
                 </form>
             {% endif %}
         </div>
     {% endfor %}
-</div>
-
-<div class="card" style="margin-top: 3rem; text-align: center;">
-    <h2 style="color: var(--primary); margin-bottom: 1rem;">❓ Questions fréquentes</h2>
-    <p style="color: var(--gray); margin-bottom: 1rem;">
-        Vous pouvez changer d'abonnement à tout moment. Les changements sont effectifs immédiatement.
-    </p>
-    <p style="color: var(--gray);">
-        Pour toute question, contactez notre support : <strong>support@pdfgenerator.com</strong>
-    </p>
 </div>
 {% endblock %}

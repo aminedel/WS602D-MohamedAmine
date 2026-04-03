@@ -10,6 +10,7 @@
         "doctrine/doctrine-bundle": "^2.11",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.0",
+        "stripe/stripe-php": "^20.0",
         "symfony/asset": "7.2.*",
         "symfony/console": "7.2.*",
         "symfony/dotenv": "7.2.*",
@@ -24,6 +25,7 @@
         "symfony/twig-bundle": "7.2.*",
         "symfony/validator": "7.2.*",
         "symfony/yaml": "7.2.*",
+        "symfonycasts/reset-password-bundle": "^1.24",
         "symfonycasts/verify-email-bundle": "^1.17",
         "twig/extra-bundle": "^3.8",
         "twig/twig": "^3.8"
