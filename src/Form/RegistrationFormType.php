@@ -5,12 +5,7 @@ namespace App\Form;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\TelType;
-use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\IsTrue;
@@ -22,59 +17,32 @@ class RegistrationFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email', EmailType::class, [
-                'label' => 'Email',
-                'attr' => ['class' => 'form-control'],
-            ])
-            ->add('firstname', TextType::class, [
-                'label' => 'Prénom',
-                'attr' => ['class' => 'form-control'],
-            ])
-            ->add('lastname', TextType::class, [
-                'label' => 'Nom',
-                'attr' => ['class' => 'form-control'],
-            ])
-            ->add('phone', TelType::class, [
-                'label' => 'Téléphone',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
-            ->add('dob', DateType::class, [
-                'label' => 'Date de naissance',
-                'widget' => 'single_text',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
-            ->add('favoriteColor', ColorType::class, [
-                'label' => 'Couleur préférée',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
+            ->add('firstname')
+            ->add('lastname')
+            ->add('phone')
+            ->add('email')
             ->add('agreeTerms', CheckboxType::class, [
-                'label' => 'J\'accepte les conditions d\'utilisation',
                 'mapped' => false,
                 'constraints' => [
                     new IsTrue([
-                        'message' => 'Vous devez accepter les conditions d\'utilisation.',
+                        'message' => 'You should agree to our terms.',
                     ]),
                 ],
             ])
             ->add('plainPassword', PasswordType::class, [
-                'label' => 'Mot de passe',
                 'mapped' => false,
-                'attr' => ['autocomplete' => 'new-password', 'class' => 'form-control'],
+                'attr' => ['autocomplete' => 'new-password'],
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'Veuillez entrer un mot de passe',
+                        'message' => 'Please enter a password',
                     ]),
                     new Length([
                         'min' => 6,
-                        'minMessage' => 'Votre mot de passe doit contenir au moins {{ limit }} caractères',
+                        'minMessage' => 'Your password should be at least {{ limit }} characters',
                         'max' => 4096,
                     ]),
                 ],
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

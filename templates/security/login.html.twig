@@ -1,95 +1,79 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Connexion - Amine PDF{% endblock %}
+{% block page_title %}Connexion{% endblock %}
 
 {% block body %}
 <style>
     .login-container {
-        max-width: 450px;
-        margin: 3rem auto;
+        max-width: 480px;
+        margin: 2rem auto;
     }
-
     .login-card {
         background: white;
-        padding: 3rem;
+        padding: 2.5rem;
         border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
-
-    .login-card h1 {
+    .login-card h2 {
         text-align: center;
         color: var(--primary);
         margin-bottom: 2rem;
-        font-size: 2rem;
-    }
-
-    .form-error {
-        background: #fee2e2;
-        color: #991b1b;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-    }
-
-    .register-link {
-        text-align: center;
-        margin-top: 1.5rem;
-        color: var(--gray);
-    }
-
-    .register-link a {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .register-link a:hover {
-        text-decoration: underline;
     }
 </style>
 
 <div class="login-container">
     <div class="login-card">
-        <h1>🔐 Connexion</h1>
+        <h2>Connexion</h2>
 
         {% if error %}
-            <div class="form-error">
+            <div class="alert alert-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
                 {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        {% if app.user %}
+            <div style="margin-bottom: 1rem; text-align: center;">
+                Connecte en tant que {{ app.user.userIdentifier }},
+                <a href="{{ path('app_logout') }}">Deconnexion</a>
             </div>
         {% endif %}
 
         <form method="post">
             <div class="form-group">
                 <label for="username" class="form-label">Email</label>
-                <input type="email" 
-                       id="username" 
-                       name="_username" 
-                       class="form-control" 
-                       value="{{ last_username }}" 
-                       required 
-                       autofocus
+                <input type="email" value="{{ last_username }}" name="_username" id="username"
+                       class="form-control" autocomplete="email" required autofocus
                        placeholder="votre@email.com">
             </div>
 
             <div class="form-group">
                 <label for="password" class="form-label">Mot de passe</label>
-                <input type="password" 
-                       id="password" 
-                       name="_password" 
-                       class="form-control" 
-                       required
-                       placeholder="••••••••">
+                <input type="password" name="_password" id="password"
+                       class="form-control" autocomplete="current-password" required>
             </div>
 
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-                Se connecter
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" name="_remember_me"> Se souvenir de moi
+                </label>
+                <a href="{{ path('app_forgot_password_request') }}" style="color: var(--primary); font-size: 0.9rem;">
+                    Mot de passe oublie ?
+                </a>
+            </div>
+
+            <button class="btn btn-primary" type="submit" style="width: 100%;">
+                <i class="fa-solid fa-right-to-bracket"></i> Se connecter
             </button>
         </form>
 
-        <div class="register-link">
-            Pas encore de compte ? <a href="{{ path('app_register') }}">Inscrivez-vous</a>
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <span style="color: var(--gray);">Pas encore de compte ?</span>
+            <a href="{{ path('app_register') }}" style="color: var(--primary); font-weight: 600;">
+                Creer un compte
+            </a>
         </div>
     </div>
 </div>

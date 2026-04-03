@@ -1,125 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Inscription - Amine PDF{% endblock %}
+{% block title %}Register{% endblock %}
 
 {% block body %}
-<style>
-    .register-container {
-        max-width: 600px;
-        margin: 3rem auto;
-    }
+    <div class="container mt-5">
+        <h1>Register</h1>
 
-    .register-card {
-        background: white;
-        padding: 3rem;
-        border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
+        {{ form_errors(registrationForm) }}
 
-    .register-card h1 {
-        text-align: center;
-        color: var(--primary);
-        margin-bottom: 2rem;
-        font-size: 2rem;
-    }
+        {{ form_start(registrationForm) }}
+            {{ form_row(registrationForm.firstname) }}
+            {{ form_row(registrationForm.lastname) }}
+            {{ form_row(registrationForm.phone) }}
+            {{ form_row(registrationForm.email) }}
+            {{ form_row(registrationForm.plainPassword, {
+                label: 'Password'
+            }) }}
+            {{ form_row(registrationForm.agreeTerms) }}
 
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .login-link {
-        text-align: center;
-        margin-top: 1.5rem;
-        color: var(--gray);
-    }
-
-    .login-link a {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .form-check {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .form-check input {
-        width: auto;
-    }
-</style>
-
-<div class="register-container">
-    <div class="register-card">
-        <h1>📝 Inscription</h1>
-
-        {{ form_start(registrationForm, {'attr': {'data-turbo': 'false'}}) }}
-            
-            <div class="form-row">
-                <div class="form-group">
-                    {{ form_label(registrationForm.firstname, null, {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(registrationForm.firstname) }}
-                    {{ form_errors(registrationForm.firstname) }}
-                </div>
-
-                <div class="form-group">
-                    {{ form_label(registrationForm.lastname, null, {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(registrationForm.lastname) }}
-                    {{ form_errors(registrationForm.lastname) }}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {{ form_label(registrationForm.email, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(registrationForm.email) }}
-                {{ form_errors(registrationForm.email) }}
-            </div>
-
-            <div class="form-group">
-                {{ form_label(registrationForm.phone, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(registrationForm.phone) }}
-                {{ form_errors(registrationForm.phone) }}
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    {{ form_label(registrationForm.dob, null, {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(registrationForm.dob) }}
-                    {{ form_errors(registrationForm.dob) }}
-                </div>
-
-                <div class="form-group">
-                    {{ form_label(registrationForm.favoriteColor, null, {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(registrationForm.favoriteColor) }}
-                    {{ form_errors(registrationForm.favoriteColor) }}
-                </div>
-            </div>
-
-            <div class="form-group">
-                {{ form_label(registrationForm.plainPassword, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(registrationForm.plainPassword) }}
-                {{ form_errors(registrationForm.plainPassword) }}
-            </div>
-
-            <div class="form-check">
-                {{ form_widget(registrationForm.agreeTerms) }}
-                {{ form_label(registrationForm.agreeTerms) }}
-                {{ form_errors(registrationForm.agreeTerms) }}
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
-                S'inscrire
-            </button>
-
+            <button type="submit" class="btn btn-primary mt-3">Register</button>
         {{ form_end(registrationForm) }}
-
-        <div class="login-link">
-            Déjà un compte ? <a href="{{ path('app_login') }}">Connectez-vous</a>
-        </div>
     </div>
-</div>
 {% endblock %}

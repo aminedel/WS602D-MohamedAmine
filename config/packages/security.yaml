@@ -11,9 +11,19 @@ security:
                 class: App\Entity\User
                 property: email
     
+    # Role hierarchy
+    role_hierarchy:
+        ROLE_PREMIUM: ROLE_USER
+        ROLE_ADMIN: ROLE_PREMIUM
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+            
+        stripe_webhook:
+            pattern: ^/payment/webhook
             security: false
         
         main:
@@ -41,10 +51,14 @@ security:
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/reset-password, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/convert, roles: ROLE_USER }
         - { path: ^/dashboard, roles: ROLE_USER }
         - { path: ^/subscription, roles: ROLE_USER }
+        - { path: ^/payment/checkout, roles: ROLE_USER }
         - { path: ^/pdf, roles: ROLE_USER }
         - { path: ^/history, roles: ROLE_USER }
+        - { path: ^/contacts, roles: ROLE_USER }
+        - { path: ^/account, roles: ROLE_USER }
 
 when@test:
     security:
