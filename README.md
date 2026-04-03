@@ -247,22 +247,3 @@ test: Ajout des tests Cypress pour la connexion
 
 Ce projet est réalisé dans le cadre du module WR602D.
 
----
-
-## 🎓 Critères de notation respectés
-
-- ✅ GitFlow obligatoire
-- ✅ Conventional commits
-- ✅ Entités Doctrine complètes
-- ✅ Fixtures pour les plans
-- ✅ Tests PHPUnit (User, Plan, Generation)
-- ✅ GitHub Actions (PSR, PHPStan, PHPMD)
-- ✅ Service Gotenberg (HttpClient)
-- ✅ Sécurité Symfony (Authentication, Authorization)
-- ✅ Pages Twig (Homepage, Login, Register, Subscription, PDF, History)
-- ✅ Custom queries (limitation par abonnement)
-- ✅ Tests Cypress E2E
-- ✅ Frontend professionnel
-- ✅ Documentation complète
-
-**Objectif : 20/20** 🎯
