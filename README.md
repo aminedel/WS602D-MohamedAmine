@@ -181,8 +181,8 @@ vendor/bin/phpmd src/ text cleancode,codesize,controversial,design,naming,unused
 | Plan | Prix | Limite PDF/jour |
 |------|------|-----------------|
 | FREE | 0€ | 2 |
-| BASIC | 9.99€ | 50 |
-| PREMIUM | 29.99€ | Illimité |
+| BASIC | 9.90€ | 10 |
+| PREMIUM | 45.00€ | Illimité |
 
 ### 3. Historique
 - Consultation des PDFs générés

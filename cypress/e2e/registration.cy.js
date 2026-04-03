@@ -17,9 +17,9 @@ describe('Registration Tests', () => {
         // Soumettre le formulaire
         cy.get('button[type="submit"]').click();
 
-        // Vérifier la redirection vers la page de connexion
-        cy.url().should('include', '/login');
-        cy.contains('Votre compte a été créé avec succès').should('exist');
+        // Vérifier la redirection vers le dashboard (car le contrôleur connecte l'utilisateur automatiquement)
+        cy.url().should('include', '/dashboard');
+        cy.contains('Bienvenue').should('exist');
     });
 
     it('Test 2 - Création de compte invalide (email existant)', () => {

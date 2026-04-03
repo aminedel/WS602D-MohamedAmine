@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier un contact - Amine PDF{% endblock %}
+
+{% block page_title %}Modifier un contact{% endblock %}
+
+{% block body %}
+<style>
+    .contact-form-container {
+        max-width: 600px;
+        margin: 2rem auto;
+    }
+
+    .contact-form-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+    }
+
+    .contact-form-card h1 {
+        text-align: center;
+        color: var(--primary);
+        margin-bottom: 2rem;
+        font-size: 1.75rem;
+    }
+</style>
+
+<div class="contact-form-container">
+    <div class="contact-form-card">
+        <h1>✏️ Modifier le Contact</h1>
+
+        <form method="post">
+            <div class="form-group">
+                <label for="firstname" class="form-label">Prénom</label>
+                <input type="text" id="firstname" name="firstname" class="form-control" required 
+                       value="{{ contact.firstname }}">
+            </div>
+
+            <div class="form-group">
+                <label for="lastname" class="form-label">Nom</label>
+                <input type="text" id="lastname" name="lastname" class="form-control" required 
+                       value="{{ contact.lastname }}">
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required 
+                       value="{{ contact.email }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                <i class="fa-solid fa-save"></i> Enregistrer les modifications
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="{{ path('app_contacts') }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                ← Retour à la liste
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

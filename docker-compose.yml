@@ -6,7 +6,7 @@ services:
     image: mmi3docker/symfony-2024
     container_name: wr602d_symfony
     ports:
-      - "8000:8000"
+      - "8001:80"
     volumes:
       - .:/var/www/html
     environment:

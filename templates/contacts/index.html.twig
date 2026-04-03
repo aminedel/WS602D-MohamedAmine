@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Contacts - Amine PDF{% endblock %}
+
+{% block page_title %}Mes Contacts{% endblock %}
+
+{% block body %}
+<style>
+    .contacts-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .contacts-header h1 {
+        color: var(--text-primary);
+        font-size: 2rem;
+    }
+
+    .contact-card {
+        background: white;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        transition: all 0.2s;
+    }
+
+    .contact-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .contact-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .contact-avatar {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary), #818cf8);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .contact-details h3 {
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .contact-details p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .contact-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-edit {
+        background: #f0fdf4;
+        color: var(--success);
+        border: 1px solid #bbf7d0;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: #dcfce7;
+    }
+
+    .btn-delete {
+        background: #fef2f2;
+        color: var(--danger);
+        border: 1px solid #fecaca;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+        background: #fee2e2;
+    }
+</style>
+
+<div class="contacts-header">
+    <h1>👥 Mes Contacts</h1>
+    <a href="{{ path('app_contacts_add') }}" class="btn btn-primary">
+        <i class="fa-solid fa-plus"></i> Ajouter un contact
+    </a>
+</div>
+
+{% if contacts|length > 0 %}
+    {% for contact in contacts %}
+        <div class="contact-card">
+            <div class="contact-info">
+                <div class="contact-avatar">
+                    {{ contact.firstname|first }}{{ contact.lastname|first }}
+                </div>
+                <div class="contact-details">
+                    <h3>{{ contact.firstname }} {{ contact.lastname }}</h3>
+                    <p><i class="fa-solid fa-envelope"></i> {{ contact.email }}</p>
+                </div>
+            </div>
+            <div class="contact-actions">
+                <a href="{{ path('app_contacts_edit', {id: contact.id}) }}" class="btn-edit">
+                    <i class="fa-solid fa-pen"></i> Modifier
+                </a>
+                <form method="post" action="{{ path('app_contacts_delete', {id: contact.id}) }}" 
+                      onsubmit="return confirm('Supprimer ce contact ?')">
+                    <button type="submit" class="btn-delete">
+                        <i class="fa-solid fa-trash"></i> Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card">
+        <div class="empty-state">
+            <div class="empty-state-icon">👤</div>
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Aucun contact</h2>
+            <p style="margin-bottom: 2rem;">Ajoutez des contacts pour les utiliser dans vos générations PDF</p>
+            <a href="{{ path('app_contacts_add') }}" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Ajouter mon premier contact
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

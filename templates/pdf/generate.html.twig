@@ -19,19 +19,37 @@
     <div class="card">
         <h1 style="margin-bottom: 2rem; color: var(--primary);">🎨 Générer un PDF</h1>
 
-        {{ form_start(form, {'attr': {'data-turbo': 'false', 'id': 'pdfForm'}}) }}
+        {{ form_start(form, {'attr': {'id': 'pdfForm'}}) }}
             
             <div class="form-type-selector">
                 {% for choice in form.type %}
-                    <div class="type-option">
-                        {{ form_widget(choice) }}
-                        <label for="{{ choice.vars.id }}">
+                    {% set isDisabled = false %}
+                    {% set lockMessage = '' %}
+                    
+                    {% if choice.vars.value == 'file' and plan.name == 'FREE' %}
+                        {% set isDisabled = true %}
+                        {% set lockMessage = 'Requis: BASIC+' %}
+                    {% endif %}
+                    
+                    {% if choice.vars.value == 'wysiwyg' and plan.name != 'PREMIUM' %}
+                        {% set isDisabled = true %}
+                        {% set lockMessage = 'Requis: PREMIUM' %}
+                    {% endif %}
+
+                    <div class="type-option" style="opacity: {{ isDisabled ? '0.5' : '1' }};">
+                        {{ form_widget(choice, {'attr': {'disabled': isDisabled ? 'disabled' : null}}) }}
+                        <label for="{{ choice.vars.id }}" style="cursor: {{ isDisabled ? 'not-allowed' : 'pointer' }}">
                             <div class="type-icon">
                                 {% if choice.vars.value == 'url' %}🌐
                                 {% elseif choice.vars.value == 'file' %}📁
                                 {% else %}✏️{% endif %}
                             </div>
                             <div>{{ choice.vars.label }}</div>
+                            {% if lockMessage %}
+                                <div style="font-size: 0.75rem; color: var(--danger); font-weight: 700; margin-top: 5px;">
+                                    <i class="fa-solid fa-lock"></i> {{ lockMessage }}
+                                </div>
+                            {% endif %}
                         </label>
                     </div>
                 {% endfor %}
