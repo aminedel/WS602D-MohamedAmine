@@ -3,51 +3,61 @@
 namespace App\DataFixtures;
 
 use App\Entity\Plan;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class PlanFixtures extends Fixture
+class PlanFixtures extends Fixture implements DependentFixtureInterface
 {
+    private UserPasswordHasherInterface $passwordHasher;
+
+    public function __construct(UserPasswordHasherInterface $passwordHasher)
+    {
+        $this->passwordHasher = $passwordHasher;
+    }
+
+    public function getDependencies(): array
+    {
+        return [AppFixtures::class];
+    }
+
     public function load(ObjectManager $manager): void
     {
-        // FREE Plan
-        $freePlan = new Plan();
-        $freePlan->setName('FREE');
-        $freePlan->setDescription('Plan gratuit pour découvrir notre service de génération de PDF. Idéal pour tester les fonctionnalités de base.');
-        $freePlan->setLimitGeneration(2); // 2 PDFs par jour
-        $freePlan->setRole('ROLE_USER');
-        $freePlan->setPrice('0.00');
-        $freePlan->setActive(true);
-        $freePlan->setImage('free-plan.png');
-        $manager->persist($freePlan);
+        // Retrieve plans created by AppFixtures
+        $freePlan = $manager->getRepository(Plan::class)->findOneBy(['name' => 'FREE']);
+        // $basicPlan is not used here, only FREE and PREMIUM
+        $premiumPlan = $manager->getRepository(Plan::class)->findOneBy(['name' => 'PREMIUM']);
 
-        // BASIC Plan
-        $basicPlan = new Plan();
-        $basicPlan->setName('BASIC');
-        $basicPlan->setDescription('Plan basique pour les utilisateurs réguliers. Parfait pour un usage quotidien avec plus de flexibilité.');
-        $basicPlan->setLimitGeneration(50); // 50 PDFs par jour
-        $basicPlan->setRole('ROLE_USER');
-        $basicPlan->setPrice('9.99');
-        $basicPlan->setSpecialPrice('7.99');
-        $basicPlan->setSpecialPriceFrom(new \DateTime('2026-02-01'));
-        $basicPlan->setSpecialPriceTo(new \DateTime('2026-03-31'));
-        $basicPlan->setActive(true);
-        $basicPlan->setImage('basic-plan.png');
-        $manager->persist($basicPlan);
+        // =============================================
+        // TEST USER (for Cypress tests and evaluation)
+        // =============================================
 
-        // PREMIUM Plan
-        $premiumPlan = new Plan();
-        $premiumPlan->setName('PREMIUM');
-        $premiumPlan->setDescription('Plan premium pour les professionnels. Génération illimitée de PDF avec toutes les fonctionnalités avancées.');
-        $premiumPlan->setLimitGeneration(null); // Illimité
-        $premiumPlan->setRole('ROLE_PREMIUM');
-        $premiumPlan->setPrice('29.99');
-        $premiumPlan->setSpecialPrice('24.99');
-        $premiumPlan->setSpecialPriceFrom(new \DateTime('2026-02-01'));
-        $premiumPlan->setSpecialPriceTo(new \DateTime('2026-03-31'));
-        $premiumPlan->setActive(true);
-        $premiumPlan->setImage('premium-plan.png');
-        $manager->persist($premiumPlan);
+        $testUser = new User();
+        $testUser->setEmail('test@example.com');
+        $testUser->setFirstname('Mohamed');
+        $testUser->setLastname('Amine');
+        $testUser->setPhone('+33612345678');
+        $testUser->setPlan($freePlan);
+        $testUser->setVerified(true);
+        $testUser->setPassword(
+            $this->passwordHasher->hashPassword($testUser, 'password123')
+        );
+        $manager->persist($testUser);
+
+        // Admin user
+        $adminUser = new User();
+        $adminUser->setEmail('admin@example.com');
+        $adminUser->setFirstname('Admin');
+        $adminUser->setLastname('System');
+        $adminUser->setRoles(['ROLE_ADMIN']);
+        $adminUser->setPlan($premiumPlan);
+        $adminUser->setVerified(true);
+        $adminUser->setPassword(
+            $this->passwordHasher->hashPassword($adminUser, 'admin123')
+        );
+        $manager->persist($adminUser);
 
         $manager->flush();
     }

@@ -50,15 +50,26 @@ class Plan
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripePriceId = null;
+
     /**
      * @var Collection<int, User>
      */
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'plan')]
     private Collection $users;
 
+    /**
+     * @var Collection<int, Tool>
+     */
+    #[ORM\ManyToMany(targetEntity: Tool::class, inversedBy: 'plans')]
+    #[ORM\JoinTable(name: 'plan_tool')]
+    private Collection $tools;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->tools = new ArrayCollection();
         $this->createdAt = new \DateTime();
         $this->active = true;
     }
@@ -256,5 +267,44 @@ class Plan
         }
 
         return $this->price;
+    }
+
+    public function getStripePriceId(): ?string
+    {
+        return $this->stripePriceId;
+    }
+
+    public function setStripePriceId(?string $stripePriceId): static
+    {
+        $this->stripePriceId = $stripePriceId;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tool>
+     */
+    public function getTools(): Collection
+    {
+        return $this->tools;
+    }
+
+    public function addTool(Tool $tool): static
+    {
+        if (!$this->tools->contains($tool)) {
+            $this->tools->add($tool);
+            $tool->addPlan($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTool(Tool $tool): static
+    {
+        if ($this->tools->removeElement($tool)) {
+            $tool->removePlan($this);
+        }
+
+        return $this;
     }
 }

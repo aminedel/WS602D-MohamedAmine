@@ -3,6 +3,7 @@
 namespace App\Tests\Entity;
 
 use App\Entity\Plan;
+use App\Entity\Tool;
 use App\Entity\User;
 use PHPUnit\Framework\TestCase;
 
@@ -154,5 +155,32 @@ class PlanTest extends TestCase
 
         $this->assertEquals('PREMIUM', $plan->getName());
         $this->assertNull($plan->getLimitGeneration());
+    }
+
+    public function testStripePriceId(): void
+    {
+        $plan = new Plan();
+
+        $this->assertNull($plan->getStripePriceId());
+
+        $plan->setStripePriceId('price_test123');
+        $this->assertEquals('price_test123', $plan->getStripePriceId());
+    }
+
+    public function testToolsCollection(): void
+    {
+        $plan = new Plan();
+        $this->assertCount(0, $plan->getTools());
+
+        $tool = new Tool();
+        $tool->setName('URL vers PDF');
+        $tool->setSlug('url');
+
+        $plan->addTool($tool);
+        $this->assertCount(1, $plan->getTools());
+        $this->assertTrue($plan->getTools()->contains($tool));
+
+        $plan->removeTool($tool);
+        $this->assertCount(0, $plan->getTools());
     }
 }

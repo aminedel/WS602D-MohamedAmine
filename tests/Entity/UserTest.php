@@ -118,4 +118,22 @@ class UserTest extends TestCase
         // La collection doit être initialisée
         $this->assertCount(0, $user->getUserContacts());
     }
+
+    public function testStripeCustomerId(): void
+    {
+        $user = new User();
+
+        $this->assertNull($user->getStripeCustomerId());
+
+        $user->setStripeCustomerId('cus_test123');
+        $this->assertEquals('cus_test123', $user->getStripeCustomerId());
+    }
+
+    public function testEraseCredentials(): void
+    {
+        $user = new User();
+        $user->eraseCredentials();
+        // Should not throw
+        $this->assertTrue(true);
+    }
 }
