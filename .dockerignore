@@ -1,0 +1,13 @@
+.git
+node_modules
+var/cache
+var/log
+vendor
+cypress/videos
+cypress/screenshots
+cypress/downloads
+.claude
+*.log
+*.txt
+docker-compose.yml
+compose.override.yaml
