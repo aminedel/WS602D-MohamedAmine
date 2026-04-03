@@ -39,6 +39,13 @@ yarn-error.log
 Thumbs.db
 ###< OS ###
 
+###> Local ###
+.claude/
+*.log
+*.txt
+!cypress.config.js
+###< Local ###
+
 ###> Cypress ###
 cypress/videos/
 cypress/screenshots/
