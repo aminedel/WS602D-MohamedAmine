@@ -1,16 +1,50 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Historique - PDF Generator{% endblock %}
+{% block title %}Historique - Amine PDF{% endblock %}
+{% block page_title %}Historique{% endblock %}
 
 {% block body %}
-<div class="card" style="text-align: center; border: none; background: transparent; box-shadow: none; padding: 0;">
-    <h1 style="color: var(--text-primary); margin-bottom: 2rem; font-size: 2rem;">📚 Historique des Générations</h1>
-</div>
+<style>
+    .history-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .history-table {
+        background: #fff;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+    .history-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: var(--primary);
+        color: #fff;
+        padding: 0.35rem 0.85rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s;
+    }
+    .btn-download:hover {
+        background: var(--primary-hover);
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+</style>
 
 <div class="history-stats">
     <div class="stat-card">
         <div class="stat-value">{{ generations|length }}</div>
-        <div class="stat-label">Total de PDFs</div>
+        <div class="stat-label">Total PDFs</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">
@@ -28,14 +62,14 @@
 
 {% if generations|length > 0 %}
     <div class="history-table">
-        <table class="table">
+        <table>
             <thead>
                 <tr>
-                    <th>📅 Date</th>
-                    <th>🏷️ Type</th>
-                    <th>📄 Fichier</th>
-                    <th>🔗 Source</th>
-                    <th>⚡ Actions</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Fichier</th>
+                    <th>Source</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,29 +77,33 @@
                     <tr>
                         <td>{{ generation.createdAt|date('d/m/Y H:i') }}</td>
                         <td>
-                            <span class="type-badge type-{{ generation.type }}">
-                                {% if generation.type == 'url' %}🌐 URL
-                                {% elseif generation.type == 'file' %}📁 Fichier
-                                {% else %}✏️ HTML{% endif %}
+                            <span class="type-badge">
+                                {% if generation.type == 'url' %}<i class="fa-solid fa-globe"></i> URL
+                                {% elseif generation.type == 'html' %}<i class="fa-solid fa-code"></i> HTML
+                                {% elseif generation.type == 'markdown' %}<i class="fa-brands fa-markdown"></i> MD
+                                {% elseif generation.type == 'office' %}<i class="fa-solid fa-file-word"></i> Office
+                                {% elseif generation.type == 'merge' %}<i class="fa-solid fa-object-group"></i> Fusion
+                                {% elseif generation.type == 'screenshot' %}<i class="fa-solid fa-camera"></i> Screenshot
+                                {% elseif generation.type == 'wysiwyg' %}<i class="fa-solid fa-pen-fancy"></i> WYSIWYG
+                                {% else %}<i class="fa-solid fa-file"></i> {{ generation.type }}
+                                {% endif %}
                             </span>
                         </td>
                         <td>
-                            <code style="font-size: 0.875rem;">{{ generation.file }}</code>
+                            <code style="font-size: 0.8rem; background: #f1f5f9; padding: 0.15rem 0.4rem; border-radius: 4px;">{{ generation.file }}</code>
                         </td>
                         <td>
                             {% if generation.sourceUrl %}
-                                <a href="{{ generation.sourceUrl }}" target="_blank" style="color: var(--primary); text-decoration: none;">
-                                    {{ generation.sourceUrl|slice(0, 40) }}...
+                                <a href="{{ generation.sourceUrl }}" target="_blank" style="color: var(--primary); font-size: 0.85rem;">
+                                    {{ generation.sourceUrl|length > 30 ? generation.sourceUrl|slice(0, 30) ~ '...' : generation.sourceUrl }}
                                 </a>
                             {% else %}
-                                <span style="color: var(--gray);">-</span>
+                                <span style="color: var(--text-secondary);">-</span>
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{{ path('app_pdf_download', {id: generation.id}) }}" 
-                               class="btn btn-primary btn-download"
-                               target="_blank">
-                                📥 Télécharger
+                            <a href="{{ path('app_convert_download', {id: generation.id}) }}" class="btn-download" target="_blank">
+                                <i class="fa-solid fa-download"></i> Telecharger
                             </a>
                         </td>
                     </tr>
@@ -74,15 +112,13 @@
         </table>
     </div>
 {% else %}
-    <div class="card">
-        <div class="empty-state">
-            <div class="empty-state-icon">📭</div>
-            <h2 style="color: var(--dark); margin-bottom: 1rem;">Aucune génération pour le moment</h2>
-            <p style="margin-bottom: 2rem;">Commencez à générer des PDFs pour les voir apparaître ici !</p>
-            <a href="{{ path('app_pdf_generate') }}" class="btn btn-primary">
-                🚀 Générer mon premier PDF
-            </a>
-        </div>
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;"><i class="fa-solid fa-inbox" style="color: #cbd5e1;"></i></div>
+        <h2 style="color: var(--text-primary); margin-bottom: 0.75rem;">Aucune generation</h2>
+        <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">Generez votre premier PDF pour le voir ici !</p>
+        <a href="{{ path('app_convert_tool', {slug: 'url'}) }}" class="btn btn-primary">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generer un PDF
+        </a>
     </div>
 {% endif %}
 {% endblock %}

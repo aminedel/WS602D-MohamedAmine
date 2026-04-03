@@ -38,13 +38,17 @@
                         <i class="fa-solid fa-chart-pie"></i>
                         <span>Dashboard</span>
                     </a>
-                    <a href="{{ path('app_pdf_generate') }}" class="nav-item {{ app.request.get('_route') == 'app_pdf_generate' ? 'active' : '' }}">
+                    <a href="{{ path('app_convert_tool', {slug: 'url'}) }}" class="nav-item {{ app.request.get('_route') == 'app_convert_tool' ? 'active' : '' }}">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>Générer PDF</span>
+                        <span>Convertir</span>
                     </a>
                     <a href="{{ path('app_history') }}" class="nav-item {{ app.request.get('_route') == 'app_history' ? 'active' : '' }}">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         <span>Historique</span>
+                    </a>
+                    <a href="{{ path('app_contacts') }}" class="nav-item {{ app.request.get('_route') starts with 'app_contacts' ? 'active' : '' }}">
+                        <i class="fa-solid fa-address-book"></i>
+                        <span>Contacts</span>
                     </a>
                     
                     <div class="nav-section">COMPTE</div>

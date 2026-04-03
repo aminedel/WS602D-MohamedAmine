@@ -23,12 +23,15 @@ class PlanRepository extends ServiceEntityRepository
      */
     public function findActivePlans(): array
     {
-        return $this->createQueryBuilder('p')
+        /** @var Plan[] $result */
+        $result = $this->createQueryBuilder('p')
             ->where('p.active = :active')
             ->setParameter('active', true)
             ->orderBy('p.price', 'ASC')
             ->getQuery()
             ->getResult();
+
+        return $result;
     }
 
     /**
@@ -36,10 +39,13 @@ class PlanRepository extends ServiceEntityRepository
      */
     public function findOneByName(string $name): ?Plan
     {
-        return $this->createQueryBuilder('p')
+        /** @var Plan|null $result */
+        $result = $this->createQueryBuilder('p')
             ->where('p.name = :name')
             ->setParameter('name', $name)
             ->getQuery()
             ->getOneOrNullResult();
+
+        return $result;
     }
 }

@@ -46,12 +46,15 @@ class GenerationRepository extends ServiceEntityRepository
      */
     public function findByUserOrderedByDate(int $userId): array
     {
-        return $this->createQueryBuilder('g')
+        /** @var Generation[] $result */
+        $result = $this->createQueryBuilder('g')
             ->where('g.user = :userId')
             ->setParameter('userId', $userId)
             ->orderBy('g.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+
+        return $result;
     }
 
     /**
@@ -64,7 +67,8 @@ class GenerationRepository extends ServiceEntityRepository
      */
     public function findByUserPaginated(int $userId, int $limit = 10, int $offset = 0): array
     {
-        return $this->createQueryBuilder('g')
+        /** @var Generation[] $result */
+        $result = $this->createQueryBuilder('g')
             ->where('g.user = :userId')
             ->setParameter('userId', $userId)
             ->orderBy('g.createdAt', 'DESC')
@@ -72,5 +76,7 @@ class GenerationRepository extends ServiceEntityRepository
             ->setFirstResult($offset)
             ->getQuery()
             ->getResult();
+
+        return $result;
     }
 }

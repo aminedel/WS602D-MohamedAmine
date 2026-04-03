@@ -1,151 +1,201 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard - PDF Generator{% endblock %}
+{% block title %}Dashboard - Amine PDF{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block body %}
 <style>
-    .dashboard-header {
-        background: white;
-        padding: 2rem;
+    .welcome-banner {
+        background: linear-gradient(135deg, #1e3a8a, #2563eb);
+        color: #fff;
+        padding: 2rem 2.5rem;
         border-radius: 16px;
-        margin-bottom: 2rem;
-        text-align: center;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
     }
-
-    .dashboard-header h1 {
-        color: var(--primary);
-        margin-bottom: 0.5rem;
+    .welcome-banner::after {
+        content: '';
+        position: absolute;
+        right: -40px;
+        top: -40px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 50%;
     }
-
-    .welcome-text {
-        color: var(--gray);
-        font-size: 1.125rem;
+    .welcome-banner h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
     }
-
-    .quick-actions {
+    .welcome-banner p {
+        opacity: 0.85;
+        font-size: 0.95rem;
+    }
+    .stats-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
         margin-bottom: 2rem;
     }
-
-    .action-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 16px;
+    .tools-section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .tool-card {
+        background: #fff;
+        padding: 1.25rem;
+        border-radius: var(--radius-md);
         text-align: center;
-        transition: transform 0.3s;
-        cursor: pointer;
+        transition: all 0.2s;
         text-decoration: none;
         color: inherit;
         display: block;
+        border: 1px solid var(--border);
     }
-
-    .action-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    .tool-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
+        text-decoration: none;
     }
-
-    .action-icon {
-        font-size: 3rem;
+    .tool-card.locked {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    .tool-card .tool-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+        color: var(--primary);
+    }
+    .tool-card.locked .tool-icon { color: var(--text-secondary); }
+    .tool-card .tool-name {
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+    .tool-card .tool-status {
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .tool-card .tool-status.available { color: var(--success); }
+    .tool-card .tool-status.unavailable { color: var(--text-secondary); }
+    .info-card {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+    }
+    .info-card h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
         margin-bottom: 1rem;
     }
-
-    .action-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .action-description {
-        color: var(--gray);
-    }
-
-    .user-info-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 16px;
-    }
-
     .info-row {
         display: flex;
         justify-content: space-between;
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--border);
+        padding: 0.65rem 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
     }
-
-    .info-row:last-child {
-        border-bottom: none;
-    }
-
-    .info-label {
-        font-weight: 600;
-        color: var(--gray);
-    }
-
-    .info-value {
-        color: var(--dark);
-        font-weight: 600;
-    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-secondary); font-weight: 500; }
+    .info-value { color: var(--text-primary); font-weight: 600; }
 </style>
 
-<div class="dashboard-header">
-    <h1>👋 Bienvenue, {{ user.firstname }} !</h1>
-    <p class="welcome-text">Gérez vos PDFs et votre abonnement depuis votre tableau de bord</p>
+<div class="welcome-banner">
+    <h1>Bienvenue, {{ user.firstname }} !</h1>
+    <p>Gerez vos conversions PDF depuis votre tableau de bord.</p>
 </div>
 
-<div class="quick-actions">
-    <a href="{{ path('app_pdf_generate') }}" class="action-card">
-        <div class="action-icon">🚀</div>
-        <div class="action-title">Générer un PDF</div>
-        <div class="action-description">Créez un nouveau PDF en quelques clics</div>
-    </a>
-
-    <a href="{{ path('app_history') }}" class="action-card">
-        <div class="action-icon">📚</div>
-        <div class="action-title">Historique</div>
-        <div class="action-description">Consultez vos PDFs générés</div>
-    </a>
-
-    <a href="{{ path('app_subscription') }}" class="action-card">
-        <div class="action-icon">💎</div>
-        <div class="action-title">Abonnement</div>
-        <div class="action-description">Gérez votre plan d'abonnement</div>
-    </a>
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-value">{{ user.plan ? user.plan.name : 'Aucun' }}</div>
+        <div class="stat-label">Plan actuel</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ todayCount }}</div>
+        <div class="stat-label">PDFs aujourd'hui</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">
+            {% if user.plan and user.plan.limitGeneration is null %}
+                <i class="fa-solid fa-infinity" style="font-size:1.25rem"></i>
+            {% elseif user.plan %}
+                {{ user.plan.limitGeneration }}
+            {% else %}
+                0
+            {% endif %}
+        </div>
+        <div class="stat-label">Limite / jour</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ user.generations|length }}</div>
+        <div class="stat-label">Total PDFs</div>
+    </div>
 </div>
 
-<div class="user-info-card">
-    <h2 style="color: var(--primary); margin-bottom: 1.5rem;">📋 Informations du compte</h2>
-    
+<div class="tools-section-title"><i class="fa-solid fa-toolbox"></i> Outils de conversion</div>
+<div class="tools-grid">
+    {% for tool in tools %}
+        {% set hasAccess = app.user and is_granted('TOOL_ACCESS', tool) %}
+        {% if hasAccess %}
+            <a href="{{ path('app_convert_tool', {slug: tool.slug}) }}" class="tool-card">
+        {% else %}
+            <div class="tool-card locked">
+        {% endif %}
+                <div class="tool-icon">
+                    {% if tool.slug == 'url' %}<i class="fa-solid fa-globe"></i>
+                    {% elseif tool.slug == 'html' %}<i class="fa-solid fa-code"></i>
+                    {% elseif tool.slug == 'markdown' %}<i class="fa-brands fa-markdown"></i>
+                    {% elseif tool.slug == 'office' %}<i class="fa-solid fa-file-word"></i>
+                    {% elseif tool.slug == 'merge' %}<i class="fa-solid fa-object-group"></i>
+                    {% elseif tool.slug == 'screenshot' %}<i class="fa-solid fa-camera"></i>
+                    {% elseif tool.slug == 'wysiwyg' %}<i class="fa-solid fa-pen-fancy"></i>
+                    {% endif %}
+                </div>
+                <div class="tool-name">{{ tool.name }}</div>
+                {% if hasAccess %}
+                    <div class="tool-status available"><i class="fa-solid fa-unlock"></i> Disponible</div>
+                {% else %}
+                    <div class="tool-status unavailable"><i class="fa-solid fa-lock"></i> Upgrade requis</div>
+                {% endif %}
+        {% if hasAccess %}
+            </a>
+        {% else %}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<div class="info-card">
+    <h2><i class="fa-solid fa-user"></i> Informations du compte</h2>
     <div class="info-row">
         <span class="info-label">Email</span>
         <span class="info-value">{{ user.email }}</span>
     </div>
-
     <div class="info-row">
         <span class="info-label">Nom complet</span>
         <span class="info-value">{{ user.firstname }} {{ user.lastname }}</span>
     </div>
-
     {% if user.phone %}
     <div class="info-row">
-        <span class="info-label">Téléphone</span>
+        <span class="info-label">Telephone</span>
         <span class="info-value">{{ user.phone }}</span>
     </div>
     {% endif %}
-
-    <div class="info-row">
-        <span class="info-label">Plan actuel</span>
-        <span class="info-value" style="color: var(--primary);">
-            {% if user.plan %}
-                {{ user.plan.name }}
-            {% else %}
-                Aucun abonnement
-            {% endif %}
-        </span>
-    </div>
-
     <div class="info-row">
         <span class="info-label">Membre depuis</span>
         <span class="info-value">{{ user.createdAt|date('d/m/Y') }}</span>

@@ -3,179 +3,144 @@
 namespace App\Service;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 
 class GotenbergService
 {
     private string $gotenbergUrl;
-    private HttpClientInterface $httpClient;
 
-    public function __construct(HttpClientInterface $httpClient, string $gotenbergUrl)
-    {
-        $this->httpClient = $httpClient;
+    public function __construct(
+        private HttpClientInterface $client,
+        string $gotenbergUrl = 'http://gotenberg:3000'
+    ) {
         $this->gotenbergUrl = $gotenbergUrl;
     }
 
-    /**
-     * Generate PDF from URL
-     *
-     * @param string $url
-     * @return string PDF content
-     * @throws \Exception
-     */
     public function generatePdfFromUrl(string $url): string
     {
-        try {
-            $response = $this->httpClient->request('POST', $this->gotenbergUrl . '/forms/chromium/convert/url', [
-                'headers' => [
-                    'Content-Type' => 'multipart/form-data',
-                ],
-                'body' => [
-                    'url' => $url,
-                    'marginTop' => '0.5',
-                    'marginBottom' => '0.5',
-                    'marginLeft' => '0.5',
-                    'marginRight' => '0.5',
-                    'paperWidth' => '8.27',
-                    'paperHeight' => '11.7',
-                ],
-            ]);
+        $formData = new FormDataPart([
+            'url' => $url
+        ]);
 
-            if ($response->getStatusCode() !== 200) {
-                throw new \Exception('Gotenberg service returned status: ' . $response->getStatusCode());
-            }
+        $response = $this->client->request('POST', $this->gotenbergUrl . '/forms/chromium/convert/url', [
+            'headers' => $formData->getPreparedHeaders()->toArray(),
+            'body' => $formData->bodyToIterable(),
+        ]);
 
-            return $response->getContent();
-        } catch (\Exception $e) {
-            throw new \Exception('Error generating PDF from URL: ' . $e->getMessage());
-        }
+        return $response->getContent();
     }
 
-    /**
-     * Generate PDF from HTML content
-     *
-     * @param string $htmlContent
-     * @return string PDF content
-     * @throws \Exception
-     */
     public function generatePdfFromHtml(string $htmlContent): string
     {
-        try {
-            // Wrap HTML in complete document if needed
-            if (stripos($htmlContent, '<html') === false) {
-                $htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>PDF Document</title></head><body>' . $htmlContent . '</body></html>';
-            }
+        $formData = new FormDataPart([
+            'files' => [
+                new DataPart($htmlContent, 'index.html', 'text/html')
+            ]
+        ]);
 
-            // Create a temporary HTML file named index.html (required by Gotenberg)
-            $tempDir = sys_get_temp_dir() . '/gotenberg_' . uniqid();
-            mkdir($tempDir);
-            $tempFile = $tempDir . '/index.html';
-            file_put_contents($tempFile, $htmlContent);
+        $response = $this->client->request('POST', $this->gotenbergUrl . '/forms/chromium/convert/html', [
+            'headers' => $formData->getPreparedHeaders()->toArray(),
+            'body' => $formData->bodyToIterable(),
+        ]);
 
-            $response = $this->httpClient->request('POST', $this->gotenbergUrl . '/forms/chromium/convert/html', [
-                'body' => [
-                    'files' => [
-                        fopen($tempFile, 'r')
-                    ],
-                    'marginTop' => '0.5',
-                    'marginBottom' => '0.5',
-                    'marginLeft' => '0.5',
-                    'marginRight' => '0.5',
-                ],
-            ]);
-
-            if ($response->getStatusCode() !== 200) {
-                // Clean up before throwing exception
-                @unlink($tempFile);
-                @rmdir($tempDir);
-                throw new \Exception('Gotenberg service returned status: ' . $response->getStatusCode());
-            }
-
-            $content = $response->getContent();
-
-            // Clean up temp files
-            @unlink($tempFile);
-            @rmdir($tempDir);
-
-            return $content;
-        } catch (\Exception $e) {
-            throw new \Exception('Error generating PDF from HTML: ' . $e->getMessage());
-        }
+        return $response->getContent();
     }
 
-    /**
-     * Generate PDF from uploaded file (Office documents)
-     *
-     * @param UploadedFile $file
-     * @return string PDF content
-     * @throws \Exception
-     */
-    public function generatePdfFromFile(UploadedFile $file): string
+    public function generatePdfFromMarkdown(string $markdownContent): string
     {
-        try {
-            // Get file content and original filename
-            $fileContent = file_get_contents($file->getPathname());
-            $filename = $file->getClientOriginalName();
+        $htmlWrapper = '<!DOCTYPE html><html><body>' . $markdownContent . '</body></html>';
 
-            // Create a temporary file with the original name
-            $tempDir = sys_get_temp_dir() . '/gotenberg_file_' . uniqid();
-            mkdir($tempDir);
-            $tempFile = $tempDir . '/' . $filename;
-            file_put_contents($tempFile, $fileContent);
+        $formData = new FormDataPart([
+            'files' => [
+                new DataPart($htmlWrapper, 'index.html', 'text/html'),
+                new DataPart($markdownContent, 'file.md', 'text/markdown')
+            ]
+        ]);
 
-            $response = $this->httpClient->request('POST', $this->gotenbergUrl . '/forms/libreoffice/convert', [
-                'body' => [
-                    'files' => fopen($tempFile, 'r'),
-                ],
-            ]);
+        $response = $this->client->request('POST', $this->gotenbergUrl . '/forms/chromium/convert/markdown', [
+            'headers' => $formData->getPreparedHeaders()->toArray(),
+            'body' => $formData->bodyToIterable(),
+        ]);
 
-            // Clean up
-            @unlink($tempFile);
-            @rmdir($tempDir);
+        return $response->getContent();
+    }
 
-            if ($response->getStatusCode() !== 200) {
-                throw new \Exception('Gotenberg service returned status: ' . $response->getStatusCode());
-            }
+    public function generatePdfFromOffice(string $filePath, string $fileName): string
+    {
+        $formData = new FormDataPart([
+            'files' => [
+                DataPart::fromPath($filePath, $fileName)
+            ]
+        ]);
 
-            return $response->getContent();
-        } catch (\Exception $e) {
-            throw new \Exception('Error generating PDF from file: ' . $e->getMessage());
-        }
+        $response = $this->client->request('POST', $this->gotenbergUrl . '/forms/libreoffice/convert', [
+            'headers' => $formData->getPreparedHeaders()->toArray(),
+            'body' => $formData->bodyToIterable(),
+        ]);
+
+        return $response->getContent();
     }
 
     /**
-     * Save PDF content to file
-     *
-     * @param string $pdfContent
-     * @param string $directory
-     * @param string|null $filename
-     * @return string Filename
+     * @param array<string> $pdfPaths
      */
-    public function savePdf(string $pdfContent, string $directory, ?string $filename = null): string
+    public function mergePdfs(array $pdfPaths): string
+    {
+        $files = [];
+        foreach ($pdfPaths as $index => $path) {
+            $files[] = DataPart::fromPath($path, 'file_' . $index . '.pdf', 'application/pdf');
+        }
+
+        $formData = new FormDataPart([
+            'files' => $files
+        ]);
+
+        $response = $this->client->request('POST', $this->gotenbergUrl . '/forms/pdfengines/merge', [
+            'headers' => $formData->getPreparedHeaders()->toArray(),
+            'body' => $formData->bodyToIterable(),
+        ]);
+
+        return $response->getContent();
+    }
+
+    public function generateScreenshotFromUrl(string $url): string
+    {
+        $formData = new FormDataPart([
+            'url' => $url,
+            'format' => 'png'
+        ]);
+
+        $response = $this->client->request('POST', $this->gotenbergUrl . '/forms/chromium/screenshot/url', [
+            'headers' => $formData->getPreparedHeaders()->toArray(),
+            'body' => $formData->bodyToIterable(),
+        ]);
+
+        return $response->getContent();
+    }
+
+    /**
+     * Save generated content to disk and return the stored filename.
+     */
+    public function savePdf(string $content, string $directory, string $filename): string
     {
         if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
+            mkdir($directory, 0775, true);
         }
 
-        if ($filename === null) {
-            $filename = 'pdf_' . date('Y_m_d_His') . '_' . uniqid() . '.pdf';
-        }
-
-        $filepath = $directory . '/' . $filename;
-        file_put_contents($filepath, $pdfContent);
+        $filepath = rtrim($directory, '/') . '/' . $filename;
+        file_put_contents($filepath, $content);
 
         return $filename;
     }
 
     /**
-     * Check if Gotenberg service is available
-     *
-     * @return bool
+     * Check if Gotenberg service is available.
      */
     public function isAvailable(): bool
     {
         try {
-            $response = $this->httpClient->request('GET', $this->gotenbergUrl . '/health');
+            $response = $this->client->request('GET', $this->gotenbergUrl . '/health');
             return $response->getStatusCode() === 200;
         } catch (\Exception $e) {
             return false;

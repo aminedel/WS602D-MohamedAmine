@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; background: #f1f5f9; padding: 2rem; }
+        .card { background: #fff; border-radius: 12px; padding: 2rem; max-width: 500px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 1.5rem; }
+        .header h1 { color: #2563eb; font-size: 1.5rem; }
+        .info { background: #f8fafc; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+        .info p { margin: 0.25rem 0; color: #334155; }
+        .btn { display: inline-block; background: #2563eb; color: #fff; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; }
+        .footer { text-align: center; color: #94a3b8; font-size: 0.8rem; margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <h1>Un fichier a ete partage avec vous</h1>
+        </div>
+
+        <p>Bonjour,</p>
+        <p><strong>{{ sender.firstname }} {{ sender.lastname }}</strong> vous a partage un fichier genere via Amine PDF.</p>
+
+        <div class="info">
+            <p><strong>Fichier :</strong> {{ generation.file }}</p>
+            <p><strong>Type :</strong> {{ generation.type }}</p>
+            <p><strong>Date :</strong> {{ generation.createdAt|date('d/m/Y H:i') }}</p>
+        </div>
+
+        <p style="text-align: center; margin-top: 1.5rem;">
+            <a href="{{ url('app_convert_download', {id: generation.id}) }}" class="btn">
+                Telecharger le fichier
+            </a>
+        </p>
+
+        <div class="footer">
+            <p>Amine PDF - Generateur de PDF Professionnel</p>
+        </div>
+    </div>
+</body>
+</html>

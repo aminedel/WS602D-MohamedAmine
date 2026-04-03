@@ -1,0 +1,200 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ tool.name }} - Amine PDF{% endblock %}
+{% block page_title %}{{ tool.name }}{% endblock %}
+
+{% block body %}
+<style>
+    .convert-card {
+        background: #fff;
+        border-radius: var(--radius-md);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border);
+    }
+    .quota-bar {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 0.85rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    .quota-bar.warning {
+        background: var(--warning-light);
+        border-color: #fcd34d;
+    }
+    .quota-bar.danger {
+        background: var(--danger-light);
+        border-color: #fecaca;
+    }
+    .contacts-section {
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .contacts-section h4 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+    }
+    .contact-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0;
+        font-size: 0.9rem;
+    }
+    .contact-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+    }
+    .btn-convert {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-convert:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    }
+    .btn-convert:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+</style>
+
+{# Quota display #}
+{% if limit is not null %}
+    <div class="quota-bar {% if quotaReached %}danger{% elseif todayCount >= (limit * 0.8) %}warning{% endif %}">
+        <span>
+            <i class="fa-solid fa-chart-bar"></i>
+            <strong>{{ todayCount }} / {{ limit }}</strong> generations utilisees aujourd'hui
+        </span>
+        {% if quotaReached %}
+            <span style="color: var(--danger); font-weight: 600;">
+                <i class="fa-solid fa-lock"></i> Quota atteint
+            </span>
+        {% endif %}
+    </div>
+{% else %}
+    <div class="quota-bar">
+        <span>
+            <i class="fa-solid fa-infinity"></i>
+            <strong>{{ todayCount }}</strong> generations aujourd'hui (illimite)
+        </span>
+    </div>
+{% endif %}
+
+<div class="convert-card">
+    {% if quotaReached %}
+        <div class="alert alert-error" style="margin-bottom: 1.5rem;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            Vous avez atteint la limite de votre plan ({{ limit }} PDFs/jour).
+            <a href="{{ path('app_subscription') }}">Passer a un plan superieur</a> pour continuer.
+        </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" data-turbo="false">
+
+        {# Tool-specific fields #}
+        {% if slug == 'url' or slug == 'screenshot' %}
+            <div class="form-group">
+                <label for="url">
+                    <i class="fa-solid fa-link"></i> URL de la page web
+                </label>
+                <input type="url" id="url" name="url" class="form-control" placeholder="https://example.com" required>
+            </div>
+
+        {% elseif slug == 'html' %}
+            <div class="form-group">
+                <label for="html_content">
+                    <i class="fa-solid fa-code"></i> Contenu HTML
+                </label>
+                <textarea id="html_content" name="html_content" class="form-control" rows="10"
+                    placeholder="<!DOCTYPE html><html><body><h1>Mon PDF</h1></body></html>" required></textarea>
+            </div>
+
+        {% elseif slug == 'markdown' %}
+            <div class="form-group">
+                <label for="markdown_content">
+                    <i class="fa-brands fa-markdown"></i> Contenu Markdown
+                </label>
+                <textarea id="markdown_content" name="markdown_content" class="form-control" rows="10"
+                    placeholder="# Titre&#10;&#10;Mon contenu en **Markdown**" required></textarea>
+            </div>
+
+        {% elseif slug == 'office' %}
+            <div class="form-group">
+                <label for="office_file">
+                    <i class="fa-solid fa-file-word"></i> Document Office
+                </label>
+                <input type="file" id="office_file" name="office_file" class="form-control"
+                    accept=".doc,.docx,.xls,.xlsx,.ppt,.pptx,.odt,.ods,.odp" required>
+                <small style="color: var(--text-secondary);">Word, Excel, PowerPoint, LibreOffice</small>
+            </div>
+
+        {% elseif slug == 'merge' %}
+            <div class="form-group">
+                <label for="pdf_files">
+                    <i class="fa-solid fa-object-group"></i> Fichiers PDF a fusionner
+                </label>
+                <input type="file" id="pdf_files" name="pdf_files[]" class="form-control" accept=".pdf" multiple required>
+                <small style="color: var(--text-secondary);">Selectionnez au moins 2 fichiers (Ctrl/Cmd + clic).</small>
+            </div>
+
+        {% elseif slug == 'wysiwyg' %}
+            <div class="form-group">
+                <label for="wysiwyg_content">
+                    <i class="fa-solid fa-pen-fancy"></i> Editeur de contenu
+                </label>
+                <textarea id="wysiwyg_content" name="wysiwyg_content" class="form-control" rows="10"
+                    placeholder="<h1>Titre</h1><p>Votre contenu ici...</p>" required></textarea>
+            </div>
+        {% endif %}
+
+        {# Contact sharing section #}
+        {% if contacts is defined and contacts|length > 0 %}
+            <div class="contacts-section">
+                <h4><i class="fa-solid fa-share-nodes"></i> Partager avec vos contacts (optionnel)</h4>
+                {% for contact in contacts %}
+                    <label class="contact-checkbox">
+                        <input type="checkbox" name="contacts[]" value="{{ contact.id }}">
+                        {{ contact.firstname }} {{ contact.lastname }} ({{ contact.email }})
+                    </label>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn-convert" {% if quotaReached %}disabled{% endif %}>
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            {% if slug == 'screenshot' %}
+                Capturer l'ecran
+            {% elseif slug == 'merge' %}
+                Fusionner les PDF
+            {% else %}
+                Generer le PDF
+            {% endif %}
+        </button>
+    </form>
+</div>
+{% endblock %}
